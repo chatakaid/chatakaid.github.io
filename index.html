@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chataka | Small Business Tools</title>
+<meta name="description" content="Simple tools and systems for small business owners.">
+<link rel="icon" href="logo.png">
+<style>
+  :root {
+    --bg: #f3f6f1; --grid: #dfe7db; --ink: #16261c; --muted: #55665b;
+    --card: #ffffff; --line: #cbd8c8; --accent: #1f7a4d; --accent-ink: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101a14; --grid: #1a2820; --ink: #eaf3ec; --muted: #9db0a2;
+      --card: #172219; --line: #2a3d30; --accent: #4fc48a; --accent-ink: #0c1a12;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh; color: var(--ink); background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 28px 28px;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5; padding: 40px 20px 56px;
+  }
+  main { max-width: 520px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 28px; }
+  .logo {
+    width: 96px; height: 96px; border-radius: 50%; object-fit: cover;
+    background: var(--card); border: 2px solid var(--line);
+  }
+  h1 { font-size: 1.5rem; margin: 14px 0 6px; letter-spacing: -0.01em; }
+  .bio { color: var(--muted); margin: 0 auto; max-width: 42ch; }
+  .socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; }
+  .socials a {
+    display: flex; align-items: center; justify-content: center;
+    width: 46px; height: 46px; border: 1px solid var(--line); border-radius: 50%;
+    background: var(--card);
+  }
+  .socials a:hover { border-color: var(--accent); }
+  .socials img { width: 24px; height: 24px; object-fit: contain; }
+  section { margin-top: 28px; }
+  h2 { font-size: 1rem; margin: 0 0 10px; color: var(--muted); font-weight: 600; }
+  .links { display: grid; gap: 10px; }
+  .link {
+    display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+    background: var(--card); color: var(--ink);
+    border: 1px solid var(--line); border-left: 5px solid var(--accent);
+    border-radius: 6px; text-decoration: none; font-weight: 600;
+  }
+  .link.large { flex-direction: column; align-items: stretch; gap: 12px; }
+  .link img { background: var(--grid); }
+  .link img.thumb { width: 64px; height: 64px; flex: none; object-fit: cover; border-radius: 6px; }
+  .link img.large { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 4px; }
+  .link small { display: block; margin-top: 2px; color: var(--muted); font-weight: 400; }
+  .link:hover { border-color: var(--accent); }
+  a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  footer { text-align: center; margin-top: 40px; color: var(--muted); font-size: .8rem; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img id="logo" class="logo" alt="">
+    <h1 id="brand"></h1>
+    <p id="bio" class="bio"></p>
+    <nav id="socials" class="socials" aria-label="Media sosial"></nav>
+  </header>
+  <div id="groups"></div>
+  <footer id="footer"></footer>
+</main>
+
+<script>
+/* ============================================================
+   PENGATURAN — edit bagian ini saja
+   ============================================================ */
+const CONFIG = {
+  // Google Analytics 4. Isi Measurement ID, contoh "G-ABC123XYZ". Kosongkan jika belum ada.
+  gaId: "",
+
+  logo: "logo.png",                       // simpan file logo di folder yang sama
+  brand: "Chataka | Small Business Tools",
+  bio: "Simple tools and systems for small business owners. Spreadsheet templates to track your money, sales, and profit. Start with the free expense tracker ↓",
+  footer: "© 2026 Chataka",
+
+  // Media sosial (tambah/hapus sesuai kebutuhan)
+  // "image" = nama file logo (simpan di folder yang sama, atau di subfolder misalnya "img/instagram.png")
+  // "name"  = dipakai untuk teks alternatif dan pelaporan klik di GA4
+  socials: [
+    { name: "Instagram", url: "https://instagram.com/GANTI_USERNAME", image: "img/instagram.png" },
+    { name: "TikTok",    url: "https://tiktok.com/@GANTI_USERNAME",   image: "img/tiktok.png" },
+    { name: "YouTube",   url: "https://youtube.com/@GANTI_USERNAME",  image: "img/youtube.png" }
+  ],
+
+  // Daftar link, dikelompokkan. Tambah grup baru dengan menyalin satu blok { title, links }.
+  // Field opsional per link:
+  //   description : teks kecil di bawah judul
+  //   image       : nama file gambar (kosongkan jika tidak ada gambar)
+  //   imageStyle  : "thumb" = thumbnail kecil di kiri (default), "large" = gambar besar di atas judul
+  groups: [
+    {
+      title: "Free Expense Tracker",
+      links: [
+        {
+          title: "Free Expense Tracker for Small Business (Excel + Google Sheets)",
+          url: "https://chatakaid.gumroad.com/l/expense-tracker",
+          description: "",
+          image: "img/expense-tracker.png",
+          imageStyle: "large"
+        }
+      ]
+    }
+  ]
+};
+/* ============================================================
+   Kode di bawah ini tidak perlu diubah
+   ============================================================ */
+
+// Google Analytics
+window.dataLayer = window.dataLayer || [];
+function gtag() { dataLayer.push(arguments); }
+if (CONFIG.gaId) {
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(CONFIG.gaId);
+  document.head.appendChild(s);
+  gtag("js", new Date());
+  gtag("config", CONFIG.gaId);
+}
+
+function track(name, url, group) {
+  if (!CONFIG.gaId) return;
+  gtag("event", "click_link", {
+    link_name: name, link_url: url, link_group: group,
+    transport_type: "beacon"
+  });
+}
+
+function makeLink(cls, item, group) {
+  const a = document.createElement("a");
+  a.className = cls;
+  a.href = item.url;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.addEventListener("click", () => track(item.name || item.title, item.url, group));
+  return a;
+}
+
+// Header
+const logo = document.getElementById("logo");
+logo.src = CONFIG.logo;
+logo.alt = CONFIG.brand;
+document.getElementById("brand").textContent = CONFIG.brand;
+document.getElementById("bio").textContent = CONFIG.bio;
+document.getElementById("footer").textContent = CONFIG.footer;
+
+// Social
+const socials = document.getElementById("socials");
+CONFIG.socials.forEach(item => {
+  const a = makeLink("", item, "social");
+  a.setAttribute("aria-label", item.name);
+  a.title = item.name;
+  const img = document.createElement("img");
+  img.src = item.image;
+  img.alt = item.name;
+  a.appendChild(img);
+  socials.appendChild(a);
+});
+
+// Groups
+const groups = document.getElementById("groups");
+CONFIG.groups.forEach(group => {
+  const sec = document.createElement("section");
+  const h = document.createElement("h2");
+  h.textContent = group.title;
+  const list = document.createElement("div");
+  list.className = "links";
+  group.links.forEach(item => {
+    const large = item.image && item.imageStyle === "large";
+    const a = makeLink("link" + (large ? " large" : ""), item, group.title);
+    if (item.image) {
+      const img = document.createElement("img");
+      img.className = large ? "large" : "thumb";
+      img.src = item.image;
+      img.alt = "";
+      img.loading = "lazy";
+      img.onerror = () => img.remove();   // gambar tidak ditemukan: sembunyikan
+      a.appendChild(img);
+    }
+    const text = document.createElement("span");
+    text.textContent = item.title;
+    if (item.description) {
+      const d = document.createElement("small");
+      d.textContent = item.description;
+      text.appendChild(d);
+    }
+    a.appendChild(text);
+    list.appendChild(a);
+  });
+  sec.append(h, list);
+  groups.appendChild(sec);
+});
+</script>
+</body>
+</html>
